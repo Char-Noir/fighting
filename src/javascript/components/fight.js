@@ -48,10 +48,10 @@ export async function fight(firstFighter, secondFighter) {
    oneHealth = firstFighter.health;
    twoHealth = secondFighter.health;
   startmyFight(firstFighter,secondFighter);
-  const timer = new TaskTimer(300);
+  const timer = new TaskTimer(10);
   timer.add({
     id: 'job1',       // unique id of the task
-    tickInterval: 1,    // run every 5 ticks (5 x interval = 5000 ms)
+    tickInterval: 30,    // run every 5 ticks (5 x interval = 5000 ms)
     totalRuns: 0,      // run 10 times only. (set to 0 for unlimited times)
     callback(task) {
       healthBarOne.style.width=((first.health/oneHealth)*100)+1+'%';
@@ -62,11 +62,13 @@ export async function fight(firstFighter, secondFighter) {
         winner = second;
         healthBarOne.style.width=0+'%';
         prom(winner);
+        timer.stop();
       }
       else if (second.health<=0) {
         winner = first;
         healthBarTwo.style.width=0+'%';
         prom(winner);
+        timer.stop();
       }
     }
   });
@@ -75,24 +77,20 @@ export async function fight(firstFighter, secondFighter) {
     tickInterval: 1,    // run every 5 ticks (5 x interval = 5000 ms)
     totalRuns: 0,      // run 10 times only. (set to 0 for unlimited times)
     callback(task) {
-      if(secsOne>=300){
-        secsOne-=300;
+      if(secsOne>=10){
+        secsOne-=10;
       }
-      else if(secsOne<300 && secsOne>0){
+      else if(secsOne<10 && secsOne>0){
         secsOne=0;
       }
-      if(secsTwo>=300){
-        secsTwo-=300;
+      if(secsTwo>=10){
+        secsTwo-=10;
       }
-      else if(secsTwo<300 && secsTwo>0){
+      else if(secsTwo<10 && secsTwo>0){
         secsTwo=0;
       }
     }
   });
-  timer.on('tick', () => {
-        if(first.health<=0||second.health<=0)
-          timer.stop();
-        });
         timer.on(TaskTimer.Event.STOPPED, () => {
           return winner;
         });
@@ -106,7 +104,7 @@ export async function fight(firstFighter, secondFighter) {
 
 export function getDamage(attacker, defender) {
   let damage = getHitPower(attacker) - getBlockPower(defender);
-  console.log('Damage:'+damage);
+  //console.log('Damage:'+damage);
   return (damage<0)?0:damage;
 }
 
@@ -114,7 +112,7 @@ export function getHitPower(fighter) {
   const {attack} = fighter;
   let criticalHitChance = Math.random() + 1;
   let power = attack * criticalHitChance;
-  console.log('Power: '+power);
+  //console.log('Power: '+power);
   return power;
 }
 
@@ -122,7 +120,7 @@ export function getBlockPower(fighter) {
   const {defense} = fighter;
   let dodgeChance = Math.random() + 1;
   let power = defense * dodgeChance;
-  console.log('Block:'+power);
+  //console.log('Block:'+power);
   return power;
 }
 
@@ -237,9 +235,11 @@ function checkKeys(key){
         }
         break;
       case codes.PlayerOneAttack:
+        if(!keys.PlayerOneBlock)
         attack({attacker:first,victim:second,hasBlock:keys.PlayerTwoBlock});
         break;
       case codes.PlayerTwoAttack:
+        if(!keys.PlayerTwoBlock)
         attack({attacker:second,victim:first,hasBlock:keys.PlayerOneBlock});
         break;
       default:
@@ -253,9 +253,8 @@ function attack({attacker,victim,hasBlock,isSpec}) {
       victim.health-=attacker.attack*2;
   }else{
     if(hasBlock){
-      victim.health-=getDamage(attacker,victim);
     }else{
-      victim.health-=getHitPower(attacker);
+      victim.health-=getDamage(attacker,victim);
     }
   }
 }
