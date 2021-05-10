@@ -16,9 +16,6 @@ export function renderArena(selectedFighters) {
     winner=value;
     showWinnerModal(winner);
   });
-  // todo:
-  // - start the fight
-  // - when fight is finished show winner
 }
 
 function createArena(selectedFighters) {
@@ -43,13 +40,57 @@ function createHealthIndicators(leftFighter, rightFighter) {
 function createHealthIndicator(fighter, position) {
   const { name } = fighter;
   const container = createElement({ tagName: 'div', className: 'arena___fighter-indicator' });
+
+  const cool = createElement({ tagName: 'div', className: 'arena___cool-indicator' });
+  const coolDown = createElement({ tagName: 'div', className: 'arena___cool-bar', attributes: { id: `${position}-fighter-coolDown` }});
+
   const fighterName = createElement({ tagName: 'span', className: 'arena___fighter-name' });
+
   const indicator = createElement({ tagName: 'div', className: 'arena___health-indicator' });
   const bar = createElement({ tagName: 'div', className: 'arena___health-bar', attributes: { id: `${position}-fighter-indicator` }});
 
+  const keys = createElement({ tagName: 'div', className: 'arena___keys-indicator' });
+  const attack =  createElement({ tagName: 'div', className: 'arena___keys-attack'});
+  var attributes = {
+    src:'https://www.pngarts.com/files/5/Punch-PNG-High-Quality-Image.png',
+    title:'attack',
+    alt:'attack icon'
+  };
+  const attackText =  createElement({ tagName: 'div', className: 'arena___keys-attackText'});
+  const attackImg = createElement({tagName:'img',className:'fighter-arena___keys-attackImg',attributes});
+  attack.append(attackImg,attackText);
+  const defense =  createElement({ tagName: 'div', className: 'arena___keys-defense'});
+   attributes = {
+    src:'https://i.redd.it/vd4yrq7ofue51.png',
+    title:'defense',
+    alt:'defense icon'
+  };
+  const defenseText =  createElement({ tagName: 'div', className: 'arena___keys-defenseText'});
+  const defenseImg = createElement({tagName:'img',className:'fighter-arena___keys-defenseImg',attributes});
+  defense.append(defenseImg,defenseText);
+  const spec =  createElement({ tagName: 'div', className: 'arena___keys-spec'});
+   attributes = {
+    src:'https://cdn.discordapp.com/attachments/689821266169036847/841315463636058122/1.png',
+    title:'special-attack',
+    alt:'special-attack icon'
+  };
+  const specText =  createElement({ tagName: 'div', className: 'arena___keys-specText'});
+  const specImg = createElement({tagName:'img',className:'fighter-arena___keys-specImg',attributes});
+  spec.append(specImg,specText);
+  if(position=='left'){
+    attackText.innerText='A';
+    defenseText.innerText='D';
+    specText.innerText='Q+W+E';
+  }else{
+    attackText.innerText='J';
+    defenseText.innerText='L';
+    specText.innerText='U+I+O';
+  }
+  keys.append(attack,defense,spec);
   fighterName.innerText = name;
+  cool.append(coolDown);
   indicator.append(bar);
-  container.append(fighterName, indicator);
+  container.append(fighterName, indicator,cool,keys);
 
   return container;
 }

@@ -10,8 +10,8 @@ var keys = {
   PlayerOneCriticalHitCombinationTwo: false,//87
   PlayerOneCriticalHitCombinationThree: false,//69
   PlayerTwoCriticalHitCombinationOne: false,//85
-  PlayerOneCriticalHitCombinationThree: false,//73
-  PlayerTwoCriticalHitCombinationTwo: false//79
+  PlayerTwoCriticalHitCombinationTwo: false,//79
+  PlayerTwoCriticalHitCombinationThree: false//73
 };
 var codes = {
   PlayerOneAttack: 65,//65
@@ -22,8 +22,8 @@ var codes = {
   PlayerOneCriticalHitCombinationTwo: 87,//87
   PlayerOneCriticalHitCombinationThree: 69,//69
   PlayerTwoCriticalHitCombinationOne: 85,//85
-  PlayerOneCriticalHitCombinationThree: 73,//73
-  PlayerTwoCriticalHitCombinationTwo: 79//79
+  PlayerTwoCriticalHitCombinationTwo: 79,//79
+  PlayerTwoCriticalHitCombinationThree: 73//73
 };
 
 
@@ -31,15 +31,22 @@ var first = null;
 var second = null;
 var isStart = false;
 
+var coolBarOne =null;
+var coolBarTwo =null;
 var healthBarOne = null;
 var healthBarTwo = null;
 var prom = null;
+var secsOne=0;
+var secsTwo=0;
+
+var oneHealth=null;
+var twoHealth=null;
 
 
 export async function fight(firstFighter, secondFighter) {
   let winner = null;
-  let oneHealth = firstFighter.health;
-  let twoHealth = secondFighter.health;
+   oneHealth = firstFighter.health;
+   twoHealth = secondFighter.health;
   startmyFight(firstFighter,secondFighter);
   const timer = new TaskTimer(300);
   timer.add({
@@ -47,8 +54,10 @@ export async function fight(firstFighter, secondFighter) {
     tickInterval: 1,    // run every 5 ticks (5 x interval = 5000 ms)
     totalRuns: 0,      // run 10 times only. (set to 0 for unlimited times)
     callback(task) {
-      healthBarOne.style.width=((first.health/oneHealth)*100)+'%';
-      healthBarTwo.style.width=((second.health/twoHealth)*100)+'%';
+      healthBarOne.style.width=((first.health/oneHealth)*100)+1+'%';
+      healthBarTwo.style.width=((second.health/twoHealth)*100)+1+'%';
+      coolBarOne.style.width=(100-((secsOne/10000)*100)+1)+'%';
+      coolBarTwo.style.width=(100-((secsTwo/10000)*100)+1)+'%';
       if(first.health<=0){
         winner = second;
         healthBarOne.style.width=0+'%';
@@ -58,6 +67,25 @@ export async function fight(firstFighter, secondFighter) {
         winner = first;
         healthBarTwo.style.width=0+'%';
         prom(winner);
+      }
+    }
+  });
+  timer.add({
+    id: 'job2',       // unique id of the task
+    tickInterval: 1,    // run every 5 ticks (5 x interval = 5000 ms)
+    totalRuns: 0,      // run 10 times only. (set to 0 for unlimited times)
+    callback(task) {
+      if(secsOne>=300){
+        secsOne-=300;
+      }
+      else if(secsOne<300 && secsOne>0){
+        secsOne=0;
+      }
+      if(secsTwo>=300){
+        secsTwo-=300;
+      }
+      else if(secsTwo<300 && secsTwo>0){
+        secsTwo=0;
       }
     }
   });
@@ -71,23 +99,14 @@ export async function fight(firstFighter, secondFighter) {
         second.position='right';
         first.position='left';
    return new Promise((resolve) => {
-
      prom = resolve;
-
     let start = timer.start();
-    healthBarOne.style.width=((first.health/oneHealth)*100)+'%';
-    healthBarTwo.style.width=((second.health/twoHealth)*100)+'%';
-    //if(firstFighter.health<=0 && secondFighter.health<=0)
-    // Ничья
-    // else if(firstFighter.health<=0)
-    // Победа второго
-    // else
-    // Победа первого
   });
 }
 
 export function getDamage(attacker, defender) {
   let damage = getHitPower(attacker) - getBlockPower(defender);
+  console.log('Damage:'+damage);
   return (damage<0)?0:damage;
 }
 
@@ -95,6 +114,7 @@ export function getHitPower(fighter) {
   const {attack} = fighter;
   let criticalHitChance = Math.random() + 1;
   let power = attack * criticalHitChance;
+  console.log('Power: '+power);
   return power;
 }
 
@@ -102,12 +122,15 @@ export function getBlockPower(fighter) {
   const {defense} = fighter;
   let dodgeChance = Math.random() + 1;
   let power = defense * dodgeChance;
+  console.log('Block:'+power);
   return power;
 }
 
 function startmyFight(one,two){
   healthBarOne = document.getElementById('left-fighter-indicator');
   healthBarTwo = document.getElementById('right-fighter-indicator');
+  coolBarOne = document.getElementById('left-fighter-coolDown');
+  coolBarTwo = document.getElementById('right-fighter-coolDown');
   document.onkeydown = OnKeyDown;
   document.onkeyup = OnKeyUp;
   first=one;
@@ -138,14 +161,14 @@ function OnKeyUp(event){
     case codes.PlayerOneCriticalHitCombinationThree:
       keys.PlayerOneCriticalHitCombinationThree=false;
       break;
-    case codes.PlayerOneCriticalHitCombinationOne:
-      keys.PlayerOneCriticalHitCombinationOne=false;
+    case codes.PlayerTwoCriticalHitCombinationOne:
+      keys.PlayerTwoCriticalHitCombinationOne=false;
       break;
-    case codes.PlayerOneCriticalHitCombinationTwo:
-      keys.PlayerOneCriticalHitCombinationTwo=false;
+    case codes.PlayerTwoCriticalHitCombinationTwo:
+      keys.PlayerTwoCriticalHitCombinationTwo=false;
       break;
-    case codes.PlayerOneCriticalHitCombinationThree:
-      keys.PlayerOneCriticalHitCombinationThree=false;
+    case codes.PlayerTwoCriticalHitCombinationThree:
+      keys.PlayerTwoCriticalHitCombinationThree=false;
       break;
     default:
 
@@ -175,14 +198,14 @@ function OnKeyDown(event){
     case codes.PlayerOneCriticalHitCombinationThree:
       keys.PlayerOneCriticalHitCombinationThree=true;
       break;
-    case codes.PlayerOneCriticalHitCombinationOne:
-      keys.PlayerOneCriticalHitCombinationOne=true;
+    case codes.PlayerTwoCriticalHitCombinationOne:
+      keys.PlayerTwoCriticalHitCombinationOne=true;
       break;
-    case codes.PlayerOneCriticalHitCombinationTwo:
-      keys.PlayerOneCriticalHitCombinationTwo=true;
+    case codes.PlayerTwoCriticalHitCombinationTwo:
+      keys.PlayerTwoCriticalHitCombinationTwo=true;
       break;
-    case codes.PlayerOneCriticalHitCombinationThree:
-      keys.PlayerOneCriticalHitCombinationThree=true;
+    case codes.PlayerTwoCriticalHitCombinationThree:
+      keys.PlayerTwoCriticalHitCombinationThree=true;
       break;
     default:
 
@@ -193,11 +216,31 @@ function OnKeyDown(event){
 function checkKeys(key){
   if(isStart){
     switch (key) {
+      case codes.PlayerOneCriticalHitCombinationOne:
+      case codes.PlayerOneCriticalHitCombinationTwo:
+      case codes.PlayerOneCriticalHitCombinationThree:
+        if(keys.PlayerOneCriticalHitCombinationOne && keys.PlayerOneCriticalHitCombinationTwo && keys.PlayerOneCriticalHitCombinationThree){
+          if(!secsOne){
+          attack({attacker:first,victim:second,isSpec:true});
+          secsOne=10000;
+          }
+        }
+        break;
+      case codes.PlayerTwoCriticalHitCombinationOne:
+      case codes.PlayerTwoCriticalHitCombinationTwo:
+      case codes.PlayerTwoCriticalHitCombinationThree:
+        if(keys.PlayerTwoCriticalHitCombinationOne && keys.PlayerTwoCriticalHitCombinationTwo && keys.PlayerTwoCriticalHitCombinationThree){
+          if(!secsTwo){
+          attack({attacker:second,victim:first,isSpec:true});
+          secsTwo=10000;
+          }
+        }
+        break;
       case codes.PlayerOneAttack:
-        attack(first,second,keys.PlayerTwoBlock);
+        attack({attacker:first,victim:second,hasBlock:keys.PlayerTwoBlock});
         break;
       case codes.PlayerTwoAttack:
-        attack(second,first,keys.PlayerOneBlock);
+        attack({attacker:second,victim:first,hasBlock:keys.PlayerOneBlock});
         break;
       default:
 
@@ -205,10 +248,17 @@ function checkKeys(key){
   }
 }
 
-function attack(attacker,victim,hasBlock) {
-  if(hasBlock){
-    victim.health-=getDamage(attacker,victim);
+function attack({attacker,victim,hasBlock,isSpec}) {
+  if(isSpec){
+      victim.health-=attacker.attack*2;
   }else{
-    victim.health-=getHitPower(attacker);
+    if(hasBlock){
+      victim.health-=getDamage(attacker,victim);
+    }else{
+      victim.health-=getHitPower(attacker);
+    }
   }
 }
+
+
+//Ujas

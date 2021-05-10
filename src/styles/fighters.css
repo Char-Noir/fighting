@@ -32,3 +32,25 @@
   background: #cbe4f8;
   border: 5px solid #267abf;
 }
+
+.fighters___fighter .fighter___fighter-image{
+  visibility: visible;
+}
+
+.fighters___fighter .fighter_info{
+  visibility: collapse;
+  width: 0px;
+}
+
+.fighters___fighter:hover .fighter___fighter-image{
+  visibility: collapse;
+  width: 0px;
+}
+
+.fighters___fighter:hover .fighter_info{
+  visibility: visible;
+  width: 100%;
+  padding: 10px;
+  text-align: center;
+  line-height: 25px;
+}
