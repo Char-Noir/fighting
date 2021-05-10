@@ -17,7 +17,6 @@ export function createFighterPreview(fighter, position) {
     tagName: 'div',
     className: `fighter-preview___charAll`,
   });
-  console.log(fighter);
     const fighter_img = createFighterImage(fighter);
     const fighter_name = createFighterName(fighter);
     const fighter_health = createFighterCharacteristic(fighter,'health');
@@ -31,7 +30,6 @@ export function createFighterPreview(fighter, position) {
     infoInner.appendChild(charAll);
     fighterElement.appendChild(infoInner);
 
-    console.log(fighterElement);
 
   return fighterElement;
 }

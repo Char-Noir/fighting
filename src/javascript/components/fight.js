@@ -1,4 +1,6 @@
 import { controls } from '../../constants/controls';
+import { TaskTimer } from 'tasktimer';
+
 var keys = {
   PlayerOneAttack: false,//65
   PlayerOneBlock: false,//68
@@ -31,38 +33,50 @@ var isStart = false;
 
 var healthBarOne = null;
 var healthBarTwo = null;
+var prom = null;
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function delayedGreeting() {
-  console.log("Привет");
-  await sleep(500);
-  console.log("мир");
-}
 
 export async function fight(firstFighter, secondFighter) {
   let winner = null;
   let oneHealth = firstFighter.health;
   let twoHealth = secondFighter.health;
   startmyFight(firstFighter,secondFighter);
-  return new Promise((resolve) => {
-    while (true) {
-      delayedGreeting();
+  const timer = new TaskTimer(300);
+  timer.add({
+    id: 'job1',       // unique id of the task
+    tickInterval: 1,    // run every 5 ticks (5 x interval = 5000 ms)
+    totalRuns: 0,      // run 10 times only. (set to 0 for unlimited times)
+    callback(task) {
       healthBarOne.style.width=((first.health/oneHealth)*100)+'%';
       healthBarTwo.style.width=((second.health/twoHealth)*100)+'%';
-      if(firstFighter.health<=0){
-        winner = "Right player :"+secondFighter.name;
-        break;
+      if(first.health<=0){
+        winner = second;
+        healthBarOne.style.width=0+'%';
+        prom(winner);
       }
-      else if (secondFighter.health<=0) {
-          winner = "Left player :"+firstFighter.name;
-          break;
+      else if (second.health<=0) {
+        winner = first;
+        healthBarTwo.style.width=0+'%';
+        prom(winner);
       }
     }
-    let fighter_bom = getFighterInfo(fighter._id).then(response => response.json()).then(file =>JSON.parse(atob(file.content)));
-    resolve(winner);
+  });
+  timer.on('tick', () => {
+        if(first.health<=0||second.health<=0)
+          timer.stop();
+        });
+        timer.on(TaskTimer.Event.STOPPED, () => {
+          return winner;
+        });
+        second.position='right';
+        first.position='left';
+   return new Promise((resolve) => {
+
+     prom = resolve;
+
+    let start = timer.start();
+    healthBarOne.style.width=((first.health/oneHealth)*100)+'%';
+    healthBarTwo.style.width=((second.health/twoHealth)*100)+'%';
     //if(firstFighter.health<=0 && secondFighter.health<=0)
     // Ничья
     // else if(firstFighter.health<=0)
@@ -79,14 +93,14 @@ export function getDamage(attacker, defender) {
 
 export function getHitPower(fighter) {
   const {attack} = fighter;
-  let criticalHitChance = Math.Random() + 1;
+  let criticalHitChance = Math.random() + 1;
   let power = attack * criticalHitChance;
   return power;
 }
 
 export function getBlockPower(fighter) {
   const {defense} = fighter;
-  let dodgeChance = Math.Random() + 1;
+  let dodgeChance = Math.random() + 1;
   let power = defense * dodgeChance;
   return power;
 }
