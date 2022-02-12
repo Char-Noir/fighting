@@ -1,6 +1,6 @@
-# stage-2-es6-for-everyone
+# JS  fighting
 
-## Instalation
+## Installation
 
 `npm install`
 
@@ -9,3 +9,4 @@
 `npm run start`
 
 open http://localhost:8080/
+![](resources/back.png)
